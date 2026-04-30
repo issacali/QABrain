@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI/ML Test Case Generator
 
 A small Python program that uses an open-source Hugging Face model to generate AI/ML and analytical/rule-based test cases from an API endpoint, curl command, or expected output. It also compares expected vs actual output by making API calls.
@@ -57,3 +58,7 @@ The report includes:
 - The app uses a local open-source model, so there are no external API token costs.
 - API calls are made with a 10-second timeout.
 - If you want a faster generation path, use `--skip-model`.
+=======
+# QABrain
+An AI-powered QA automation platform that generates test cases, creates defect reports, and integrates with Jira using multiple AI models.
+>>>>>>> a3f68c0e5a9f9ce6b005bd0a1f973cd6d8c3de26
