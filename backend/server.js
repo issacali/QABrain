@@ -35,9 +35,14 @@ app.use("/api", historyRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+// Try to connect to MongoDB, but continue without it if unavailable
 connectDB(process.env.MONGO_URI)
-  .then(() => app.listen(PORT, () => console.log(`Backend running on ${PORT}`)))
+  .then(() => {
+    console.log("✓ MongoDB connected");
+    app.listen(PORT, () => console.log(`✓ Backend running on http://localhost:${PORT}`));
+  })
   .catch((err) => {
-    console.error("DB connection failed:", err.message);
-    process.exit(1);
+    console.warn("⚠ MongoDB unavailable:", err.message);
+    console.log("📝 Starting in mock mode (in-memory data, no persistence)");
+    app.listen(PORT, () => console.log(`✓ Backend running on http://localhost:${PORT} (mock mode)`));
   });

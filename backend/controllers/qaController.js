@@ -4,6 +4,7 @@ import DefectRun from "../models/DefectRun.js";
 import JiraLog from "../models/JiraLog.js";
 import { getProvider } from "../services/aiService.js";
 import { createJiraIssue } from "../services/jiraService.js";
+import { isDBConnected } from "../config/db.js";
 
 export const testCaseSchema = Joi.object({
   requirement: Joi.string().min(10).required(),
@@ -25,12 +26,24 @@ export async function generateTestCases(req, res, next) {
   try {
     const provider = await getProvider(req.body.model);
     const output = await provider.generateTestCases(req.body.requirement);
-    const doc = await TestCaseRun.create({
-      requirement: req.body.requirement,
-      model: req.body.model || "active",
-      cases: output.testCases || []
+    
+    let doc = null;
+    if (isDBConnected()) {
+      try {
+        doc = await TestCaseRun.create({
+          requirement: req.body.requirement,
+          model: req.body.model || "active",
+          cases: output.testCases || []
+        });
+      } catch (dbErr) {
+        console.warn("⚠ Database save failed:", dbErr.message);
+      }
+    }
+    
+    res.json({ 
+      id: doc?._id || "mock-" + Date.now(), 
+      testCases: output.testCases || [] 
     });
-    res.json({ id: doc._id, testCases: output.testCases || [] });
   } catch (err) {
     next(err);
   }
@@ -40,12 +53,24 @@ export async function generateDefect(req, res, next) {
   try {
     const provider = await getProvider(req.body.model);
     const defect = await provider.generateDefectReport(req.body.scenario);
-    const doc = await DefectRun.create({
-      scenario: req.body.scenario,
-      model: req.body.model || "active",
-      defect
+    
+    let doc = null;
+    if (isDBConnected()) {
+      try {
+        doc = await DefectRun.create({
+          scenario: req.body.scenario,
+          model: req.body.model || "active",
+          defect
+        });
+      } catch (dbErr) {
+        console.warn("⚠ Database save failed:", dbErr.message);
+      }
+    }
+    
+    res.json({ 
+      id: doc?._id || "mock-" + Date.now(), 
+      defect 
     });
-    res.json({ id: doc._id, defect });
   } catch (err) {
     next(err);
   }
